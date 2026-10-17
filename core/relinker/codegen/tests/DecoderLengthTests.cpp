@@ -2,8 +2,10 @@
 #include "DecoderMetadataCases.hpp"
 #include <codegen/CodegenException.hpp>
 #include <codegen/x86/X64InstructionDecoder.hpp>
+#include <algorithm>
 #include <cstdint>
 #include <iostream>
+#include <iterator>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -110,8 +112,10 @@ int main() {
             require(info.TruncatesBranchTarget && !info.HasBranchTarget, "Branch target of " + name + " was reported without its 16-bit truncation");
         }
         for (const auto& testCase : kDecoderBranchCases) {
+            const std::string name = testCase.Bytes;
             const auto bytes = parse(testCase.Bytes);
-            require(!decoder.DecodeInstruction(bytes.data(), bytes.size()).TruncatesBranchTarget, "Branch target of " + std::string(testCase.Bytes) + " was reported as truncated");
+            const bool truncated = std::any_of(std::begin(kDecoderTruncatedBranchCases), std::end(kDecoderTruncatedBranchCases), [&](const auto& item) { return name == item.Bytes; });
+            require(decoder.DecodeInstruction(bytes.data(), bytes.size()).TruncatesBranchTarget == truncated, "Wrong branch target truncation for " + name);
         }
         const auto threeDNow = parse("0f0f0d11223344a6");
         const auto threeDNowInfo = decoder.DecodeInstruction(threeDNow.data(), threeDNow.size());

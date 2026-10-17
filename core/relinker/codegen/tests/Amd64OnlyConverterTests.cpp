@@ -818,7 +818,7 @@ void converterWideStoreWindows() {
     require(relaxed.Trampolines.size() == 1 && relaxed.Trampolines[0].Length == 10 && body(relaxed.Trampolines[0]) == expected && relaxed.Trampolines[0].Relocations.size() == 2 && relaxed.Trampolines[0].Relocations[1].SiteTarget == 10 + 0x10, "A call with an address-size prefix was not moved like a call");
 
     const Bytes add = {0x48, 0x83, 0xC1, 0x01};
-    for (const auto& follower : {Bytes{0xFF, 0xD0}, Bytes{0xE3, 0x10}, Bytes{0x66, 0x75, 0x10}, Bytes{0x66, 0x0F, 0xAE, 0x37}}) {
+    for (const auto& follower : {Bytes{0xFF, 0xD0}, Bytes{0xE3, 0x10}, Bytes{0x66, 0x75, 0x10}, Bytes{0x66, 0xFF, 0x15, 0x10, 0x00, 0x00, 0x00}, Bytes{0x66, 0x0F, 0xAE, 0x37}}) {
         const auto preceded = convert(withStore(add, follower));
         expected = add;
         expected.insert(expected.end(), halves.begin(), halves.end());

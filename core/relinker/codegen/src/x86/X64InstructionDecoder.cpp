@@ -425,7 +425,8 @@ DecodedInstructionInfo X64InstructionDecoder::DecodeInstruction(
         : op == OneByteCallRel32 || op == OneByteJmpRel32 || op == OneByteJmpRel8 ||
           (op >= OneByteJccRel8Min && op <= OneByteJccRel8Max) ||
           op == OneByteJrcxz || (op >= OneByteLoop && op <= OneByteLoopMax);
-    if (relativeNearBranch && operandSizeOverride && (info.RexPrefix & RexWBit) == 0) {
+    const bool operandSize16 = operandSizeOverride && (info.RexPrefix & RexWBit) == 0;
+    if (relativeNearBranch && operandSize16) {
         info.TruncatesBranchTarget = true;
         info.FlowKind = twoByteOpcode || (op != OneByteCallRel32 && op != OneByteJmpRel32 && op != OneByteJmpRel8)
             ? ControlFlowKind::ConditionalBranch
@@ -470,6 +471,7 @@ DecodedInstructionInfo X64InstructionDecoder::DecodeInstruction(
         }
         if (op == 0xC3 || op == 0xCB || op == 0xC2 || op == 0xCA) {
             info.FlowKind = ControlFlowKind::Return;
+            info.TruncatesBranchTarget = operandSize16 && (op == 0xC3 || op == 0xC2);
             return info;
         }
         if (op == OneByteGrp5Rm && pos < info.Length) {
@@ -480,6 +482,8 @@ DecodedInstructionInfo X64InstructionDecoder::DecodeInstruction(
             info.ModRmRegField = reg;
             std::uint8_t mod = (modrm >> ModRmModShift) & ModRmModMask;
             std::uint8_t rm = modrm & ModRmRmMask;
+            if (reg == 2 || reg == 4)
+                info.TruncatesBranchTarget = operandSize16;
             if (reg == 2) {
                 if (mod == ModRmModIndirect && rm == ModRmRmRipRelative) {
                     info.FlowKind = ControlFlowKind::Call;
@@ -497,8 +501,8 @@ DecodedInstructionInfo X64InstructionDecoder::DecodeInstruction(
                     info.FlowKind = ControlFlowKind::UnconditionalJump;
                     info.HasRipRelativeDisp = true;
                     info.RipRelativeDispOffset = pos + 1;
-                    info.HasBranchTarget = true;
-                    info.BranchDisp = disp;
+                    info.HasBranchTarget = !operandSize16;
+                    info.BranchDisp = operandSize16 ? 0 : disp;
                 } else {
                     info.FlowKind = ControlFlowKind::IndirectJump;
                 }

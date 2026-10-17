@@ -792,6 +792,11 @@ inline constexpr DecoderBranchCase kDecoderBranchCases[] = {
     {"6648e9c0111111", 7, Codegen::ControlFlowKind::UnconditionalJump, true, 286331328},
     {"6648ebc0", 4, Codegen::ControlFlowKind::UnconditionalJump, true, -64},
     {"664875c0", 4, Codegen::ControlFlowKind::ConditionalBranch, true, -64},
+    {"6648c3", 3, Codegen::ControlFlowKind::Return, false, 0},
+    {"6648ffd0", 4, Codegen::ControlFlowKind::IndirectCall, false, 0},
+    {"6648ffe0", 4, Codegen::ControlFlowKind::IndirectJump, false, 0},
+    {"6648ff1511111111", 8, Codegen::ControlFlowKind::Call, false, 0},
+    {"6648ff2511111111", 8, Codegen::ControlFlowKind::UnconditionalJump, true, 286331153},
 };
 
 struct DecoderTruncatedBranchCase {
@@ -814,6 +819,13 @@ inline constexpr DecoderTruncatedBranchCase kDecoderTruncatedBranchCases[] = {
     {"66ebc0", 3, Codegen::ControlFlowKind::UnconditionalJump},
     {"6667e8c011", 5, Codegen::ControlFlowKind::Call},
     {"6640e8c011", 5, Codegen::ControlFlowKind::Call},
+    {"66c2c011", 4, Codegen::ControlFlowKind::Return},
+    {"66c3", 2, Codegen::ControlFlowKind::Return},
+    {"66ffd0", 3, Codegen::ControlFlowKind::IndirectCall},
+    {"66ffe0", 3, Codegen::ControlFlowKind::IndirectJump},
+    {"66ff10", 3, Codegen::ControlFlowKind::IndirectCall},
+    {"66ff1511111111", 7, Codegen::ControlFlowKind::Call},
+    {"66ff2511111111", 7, Codegen::ControlFlowKind::UnconditionalJump},
 };
 
 #endif
